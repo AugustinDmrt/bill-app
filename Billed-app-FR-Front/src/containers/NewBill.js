@@ -6,16 +6,21 @@ export default class NewBill {
     this.document = document;
     this.onNavigate = onNavigate;
     this.store = store;
+    this.localStorage = localStorage || window.localStorage; // Utilisation du localStorage simulé si nécessaire
+
     const formNewBill = this.document.querySelector(
       `form[data-testid="form-new-bill"]`
     );
     formNewBill.addEventListener("submit", this.handleSubmit);
+
     const file = this.document.querySelector(`input[data-testid="file"]`);
     file.addEventListener("change", this.handleChangeFile);
+
     this.fileUrl = null;
     this.fileName = null;
     this.billId = null;
-    new Logout({ document, localStorage, onNavigate });
+
+    new Logout({ document, localStorage: this.localStorage, onNavigate });
   }
 
   handleChangeFile = (e) => {
@@ -35,7 +40,7 @@ export default class NewBill {
     }
 
     const formData = new FormData();
-    const email = JSON.parse(localStorage.getItem("user")).email;
+    const email = JSON.parse(this.localStorage.getItem("user")).email;
     formData.append("file", file);
     formData.append("email", email);
 
@@ -62,7 +67,8 @@ export default class NewBill {
       'e.target.querySelector(`input[data-testid="datepicker"]`).value',
       e.target.querySelector(`input[data-testid="datepicker"]`).value
     );
-    const email = JSON.parse(localStorage.getItem("user")).email;
+
+    const email = JSON.parse(this.localStorage.getItem("user")).email;
     const bill = {
       email,
       type: e.target.querySelector(`select[data-testid="expense-type"]`).value,
@@ -85,7 +91,7 @@ export default class NewBill {
     this.onNavigate(ROUTES_PATH["Bills"]);
   };
 
-  // not need to cover this function by tests
+  // Not covered by tests
   updateBill = (bill) => {
     if (this.store) {
       this.store
